@@ -2,23 +2,14 @@
 
 use strict;
 use warnings;
-### Modules #######################
-
 use Socket;
 use IO::Socket::INET;
 use Net::OpenSSH;
 
-#my @port_list = ( "26");
 my @port_list = ("22", "26");
-my %up = (  "root_a",     "a1b2c3",
-            "root_b",     "abcd_1234",
-            "root_c",     "l0destone",
-            "USERID_d",   "PASSW0RD");
+
 my @user_pass = (
-        [ 'root',       'a1b2c3'    ],
-        [ 'root',       'abcd_1234' ],
-        [ 'root',       'l0destone' ],
-        [ 'USERID',    'PASSW0RD'  ] 
+        [ 'invuser',       'invpass'    ]
         );
 
 my @sig_ip  =   ("9.151.184.");
@@ -27,15 +18,12 @@ my $host_user;
 my $host_pass;
 my $host_port;
 
-#my @sig_ip  =   ("9.151.184.", "9.151.185.");
 
 sub open_ssh_connection {
     my $ip      = shift;
     my $host    = shift;    
     my $socket;
     my @p;
-    #print "Host Name : $host, $ip ";
-    #print "\nPort Checking to : $host ";
 
     open my $stderr_fh, '>>', "/tmp/$host.err" or print "unable to open file $host.err\n";
     open my $stdout_fh, '>>', "/tmp/$host.out" or print "unable to open file $host.err\n";
@@ -50,7 +38,6 @@ sub open_ssh_connection {
             close($socket);
         }
     }
-    #print "Total open Ports : " .scalar(@p). " ports : " . join(",", @p) . " ";
 
 #### Checking open port foreach host ##################################################################################
     foreach $host_port (@p) {
@@ -66,9 +53,7 @@ sub open_ssh_connection {
                     $host_user = $up->[0];
                     $host_pass = $up->[1];
                     my  $ssh = Net::OpenSSH->new("$host_user:$host_pass\@$ip:$host_port", async => 1, default_ssh_opts => ['-oConnectionAttempts=6'],timeout=>8);
-                    #my  $ssh = Net::OpenSSH->new("$user:$up{$u}\@$ip:$port", default_ssh_opts => ['-oConnectionAttempts=6'],timeout=>8);
                     if (!$ssh->error){ 
-                        #printf ("%10s", "return SSH -> $ssh ");
                         return($ssh,$host_user);
                     }
                 }
